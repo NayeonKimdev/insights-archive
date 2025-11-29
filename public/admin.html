@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>새 인사이트 추가</title>
+    <link rel="stylesheet" href="../src/styles/admin.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← 갤러리로</a>
+            <h1>✨ 새 인사이트 추가</h1>
+        </div>
+        
+        <form id="insightForm">
+            <div class="form-group">
+                <label>제목</label>
+                <input type="text" id="title" required placeholder="핵심 한 줄 요약">
+            </div>
+            
+            <div class="form-group">
+                <label>내용</label>
+                <textarea id="content" rows="8" required 
+                    placeholder="배운 점, 인사이트, 적용 아이디어 등 자유롭게 작성"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>태그 (쉼표로 구분)</label>
+                <input type="text" id="tags" placeholder="aws, react, design">
+                <small>예: aws, serverless, optimization</small>
+            </div>
+            
+            <div class="form-group">
+                <label>카테고리</label>
+                <select id="category">
+                    <option value="tech">Tech</option>
+                    <option value="design">Design</option>
+                    <option value="business">Business</option>
+                    <option value="life">Life</option>
+                    <option value="chemistry">Chemistry</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>이미지 (선택)</label>
+                <div id="dropZone" class="drop-zone">
+                    <p>📸 이미지를 드래그하거나 클릭하여 선택</p>
+                    <input type="file" id="imageInput" accept="image/*" hidden>
+                </div>
+                <div id="imagePreview"></div>
+            </div>
+            
+            <button type="submit" class="submit-btn">저장</button>
+        </form>
+    </div>
+    
+    <script src="../src/scripts/admin.js"></script>
+</body>
+</html>
+

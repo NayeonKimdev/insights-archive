@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insight Gallery</title>
+    <link rel="stylesheet" href="../src/styles/gallery.css">
+</head>
+<body>
+    <!-- 검색 & 필터 바 -->
+    <header>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="인사이트 검색...">
+            <div class="tag-filters" id="tagFilters">
+                <!-- 동적으로 태그 버튼 생성 -->
+            </div>
+        </div>
+        <a href="admin.html" class="add-btn">+ 새 인사이트</a>
+    </header>
+
+    <!-- 인사이트 그리드 (Masonry 레이아웃) -->
+    <main class="gallery" id="gallery">
+        <!-- JavaScript로 동적 생성 -->
+    </main>
+
+    <!-- 상세 모달 -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="../src/scripts/gallery.js"></script>
+</body>
+</html>
+
