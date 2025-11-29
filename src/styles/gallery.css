@@ -6,21 +6,24 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
-    background: #fafafa;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background-attachment: fixed;
     color: #262626;
+    min-height: 100vh;
 }
 
 header {
     position: sticky;
     top: 0;
-    background: white;
-    padding: 20px;
-    border-bottom: 1px solid #dbdbdb;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 24px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     z-index: 100;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
 .search-bar {
@@ -31,15 +34,18 @@ header {
 #searchInput {
     width: 100%;
     padding: 12px 20px;
-    border: 1px solid #dbdbdb;
+    border: 2px solid rgba(0,0,0,0.08);
     border-radius: 24px;
     font-size: 14px;
     outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.3s;
+    background: rgba(255,255,255,0.8);
 }
 
 #searchInput:focus {
-    border-color: #0095f6;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
 .tag-filters {
@@ -50,61 +56,76 @@ header {
 }
 
 .tag-btn {
-    padding: 6px 16px;
-    border: 1px solid #dbdbdb;
+    padding: 8px 18px;
+    border: 2px solid rgba(102, 126, 234, 0.3);
     border-radius: 20px;
     background: white;
     cursor: pointer;
     font-size: 13px;
-    transition: all 0.2s;
-    font-weight: 500;
+    transition: all 0.3s;
+    font-weight: 600;
+    color: #667eea;
 }
 
 .tag-btn:hover {
-    background: #efefef;
+    background: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
+    transform: translateY(-2px);
 }
 
 .tag-btn.active {
-    background: #0095f6;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    border-color: #0095f6;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 .add-btn {
-    background: #0095f6;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 10px 24px;
-    border-radius: 8px;
+    padding: 12px 28px;
+    border-radius: 12px;
     text-decoration: none;
     font-weight: 600;
     font-size: 14px;
-    transition: background 0.2s;
+    transition: all 0.3s;
     white-space: nowrap;
     margin-left: 20px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
 .add-btn:hover {
-    background: #0084d4;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
 }
 
-/* Masonry 그리드 (인스타 피드처럼) */
+/* 메모장 스타일 그리드 */
 .gallery {
-    column-count: 3;
-    column-gap: 20px;
-    padding: 20px;
-    max-width: 1200px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    padding: 32px 20px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
 @media (max-width: 900px) {
-    .gallery { column-count: 2; }
+    .gallery {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
 }
 
 @media (max-width: 600px) {
-    .gallery { column-count: 1; }
+    .gallery {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 20px 16px;
+    }
     header {
         flex-direction: column;
         gap: 12px;
+        padding: 20px 16px;
     }
     .add-btn {
         margin-left: 0;
@@ -114,89 +135,143 @@ header {
 }
 
 .insight-card {
-    break-inside: avoid;
-    margin-bottom: 20px;
-    background: white;
-    border: 1px solid #dbdbdb;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 16px;
     overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    display: inline-block;
-    width: 100%;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.insight-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    z-index: 1;
 }
 
 .insight-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.25);
+    border-color: rgba(102, 126, 234, 0.5);
 }
 
-.insight-card img {
+.insight-thumbnail {
     width: 100%;
-    height: auto;
-    display: block;
+    height: 180px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    position: relative;
+    border-bottom: 3px solid rgba(102, 126, 234, 0.3);
+}
+
+.insight-thumbnail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.1) 100%);
+    z-index: 1;
+}
+
+.insight-thumbnail img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    transition: transform 0.3s;
+    filter: brightness(0.95) contrast(1.05);
+}
+
+.insight-card:hover .insight-thumbnail img {
+    transform: scale(1.15);
 }
 
 .insight-content {
-    padding: 16px;
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.insight-title {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: #262626;
-    line-height: 1.4;
-}
-
-.insight-text {
-    font-size: 14px;
-    line-height: 1.6;
-    color: #8e8e8e;
-    margin-bottom: 12px;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
+.json-viewer {
+    width: 100%;
     overflow: hidden;
-}
-
-.insight-tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-bottom: 8px;
-}
-
-.tag {
-    background: #efefef;
-    color: #262626;
-    padding: 4px 10px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     border-radius: 12px;
-    font-size: 12px;
+    padding: 16px;
+    border: 1px solid rgba(102, 126, 234, 0.15);
+    position: relative;
+}
+
+.json-viewer::before {
+    content: '{ }';
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 24px;
+    color: rgba(102, 126, 234, 0.1);
+    font-weight: 700;
+    pointer-events: none;
+}
+
+.json-code {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    color: #2c3e50;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 15;
+    -webkit-box-orient: vertical;
+    position: relative;
+    z-index: 1;
+}
+
+.json-code .json-key {
+    color: #9b59b6;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(155, 89, 182, 0.2);
+}
+
+.json-code .json-string {
+    color: #27ae60;
     font-weight: 500;
+    text-shadow: 0 1px 2px rgba(39, 174, 96, 0.2);
 }
 
-.insight-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid #efefef;
-    font-size: 12px;
-    color: #8e8e8e;
+.json-code .json-number {
+    color: #e74c3c;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(231, 76, 60, 0.2);
 }
 
-.category-badge {
-    background: #0095f6;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
+.json-code .json-boolean {
+    color: #3498db;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(52, 152, 219, 0.2);
 }
+
+.json-code .json-null {
+    color: #95a5a6;
+    font-weight: 700;
+    font-style: italic;
+}
+
 
 /* 모달 스타일 */
 .modal {

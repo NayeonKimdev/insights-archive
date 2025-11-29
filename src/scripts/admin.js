@@ -94,15 +94,16 @@ document.getElementById('insightForm').addEventListener('submit', async (e) => {
         image: null
     };
     
-    // 이미지가 있으면 처리 (로컬에서는 경로만 저장)
+    // 이미지가 있으면 base64로 변환하여 저장
     if (selectedImage) {
-        const imagePath = await saveImageLocally(selectedImage, newInsight.id);
-        newInsight.image = imagePath;
+        const base64Image = await imageToBase64(selectedImage);
+        newInsight.image = base64Image;
     }
     
     await saveInsight(newInsight);
     
-    alert('✅ 저장 완료!');
+    // 저장 완료 후 메인 페이지로 이동
+    alert('✅ 저장 완료! 메인 페이지에서 확인하세요.');
     window.location.href = 'index.html';
 });
 
@@ -112,46 +113,42 @@ function generateId() {
     return `${date}-${random}`;
 }
 
-async function saveImageLocally(file, insightId) {
-    // 로컬에서는 파일명만 반환
-    // 실제 배포 시에는 서버나 클라우드 스토리지에 업로드 필요
-    const extension = file.name.split('.').pop() || 'jpg';
-    return `data/images/${insightId}.${extension}`;
+function imageToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 async function saveInsight(insight) {
     try {
-        // 기존 데이터 로드
-        const response = await fetch('../data/insights.json');
-        let data = { insights: [] };
-        
-        if (response.ok) {
-            data = await response.json();
-        }
+        // 기존 localStorage 데이터 로드
+        const stored = localStorage.getItem('insights');
+        let allInsights = stored ? JSON.parse(stored) : [];
         
         // 새 인사이트 추가
-        data.insights.push(insight);
+        allInsights.push(insight);
         
-        // 로컬 스토리지에 저장 (임시)
-        // 실제로는 GitHub API나 서버를 통해 저장해야 함
-        localStorage.setItem('pendingInsights', JSON.stringify(data.insights));
+        // localStorage에 저장
+        localStorage.setItem('insights', JSON.stringify(allInsights));
         
-        // 사용자에게 안내
-        console.log('인사이트가 준비되었습니다. data/insights.json 파일에 다음 내용을 추가하세요:');
-        console.log(JSON.stringify(insight, null, 2));
-        
-        // GitHub Pages 환경에서는 직접 파일 수정이 불가능하므로
-        // 사용자가 수동으로 추가하거나 GitHub API를 사용해야 함
-        alert('💡 참고: GitHub Pages에서는 직접 파일 수정이 불가능합니다.\n\n로컬에서 개발하시거나, GitHub API를 통해 자동화하세요.\n\n현재는 localStorage에 임시 저장되었습니다.');
+        // JSON 파일에도 시도 (실패해도 무시)
+        try {
+            const response = await fetch('../data/insights.json');
+            if (response.ok) {
+                const data = await response.json();
+                data.insights.push(insight);
+                // 실제 파일 저장은 불가능하지만 시도는 함
+            }
+        } catch (e) {
+            // 무시
+        }
         
     } catch (error) {
         console.error('Error saving insight:', error);
-        // 로컬 스토리지에 백업
-        const stored = JSON.parse(localStorage.getItem('pendingInsights') || '[]');
-        stored.push(insight);
-        localStorage.setItem('pendingInsights', JSON.stringify(stored));
-        
-        alert('⚠️ 파일 저장에 실패했습니다. localStorage에 임시 저장되었습니다.\n\n로컬에서 data/insights.json 파일을 직접 수정하세요.');
+        alert('⚠️ 저장 중 오류가 발생했습니다.');
     }
 }
 

@@ -3,24 +3,44 @@ let filteredInsights = [];
 let selectedTags = new Set();
 
 async function loadInsights() {
+    let insights = [];
+    
+    // 1. localStorage에서 데이터 로드
+    const stored = localStorage.getItem('insights');
+    if (stored) {
+        try {
+            insights = JSON.parse(stored);
+        } catch (e) {
+            console.error('Error parsing localStorage:', e);
+        }
+    }
+    
+    // 2. JSON 파일에서도 데이터 로드 (병합)
     try {
         const response = await fetch('../data/insights.json');
-        if (!response.ok) {
-            throw new Error('데이터를 불러올 수 없습니다.');
+        if (response.ok) {
+            const data = await response.json();
+            // localStorage와 병합 (중복 제거)
+            const fileInsights = data.insights || [];
+            const existingIds = new Set(insights.map(i => i.id));
+            fileInsights.forEach(insight => {
+                if (!existingIds.has(insight.id)) {
+                    insights.push(insight);
+                }
+            });
         }
-        const data = await response.json();
-        allInsights = data.insights.sort((a, b) => 
-            new Date(b.timestamp) - new Date(a.timestamp)
-        );
-        filteredInsights = [...allInsights];
-        
-        renderTagFilters();
-        renderGallery();
     } catch (error) {
-        console.error('Error loading insights:', error);
-        document.getElementById('gallery').innerHTML = 
-            '<p style="text-align: center; padding: 40px; color: #8e8e8e;">데이터를 불러올 수 없습니다. data/insights.json 파일을 확인해주세요.</p>';
+        console.log('JSON 파일을 불러올 수 없습니다. localStorage 데이터만 사용합니다.');
     }
+    
+    // 시간순 정렬
+    allInsights = insights.sort((a, b) => 
+        new Date(b.timestamp) - new Date(a.timestamp)
+    );
+    filteredInsights = [...allInsights];
+    
+    renderTagFilters();
+    renderGallery();
 }
 
 function renderTagFilters() {
@@ -84,28 +104,65 @@ function renderGallery() {
         return;
     }
     
-    gallery.innerHTML = filteredInsights.map(insight => `
+    gallery.innerHTML = filteredInsights.map(insight => {
+        // 이미지가 base64인지 경로인지 확인
+        const imageSrc = insight.image 
+            ? (insight.image.startsWith('data:') ? insight.image : `../${insight.image}`)
+            : null;
+        
+        // JSON 데이터 준비 (이미지는 축약)
+        const jsonData = {
+            id: insight.id,
+            timestamp: insight.timestamp,
+            title: insight.title,
+            content: insight.content.substring(0, 100) + (insight.content.length > 100 ? '...' : ''),
+            tags: insight.tags,
+            category: insight.category || 'tech',
+            image: imageSrc ? '📷 [Image attached]' : null
+        };
+        
+        const jsonString = JSON.stringify(jsonData, null, 2);
+        
+        return `
         <div class="insight-card" onclick="openDetail('${insight.id}')">
-            ${insight.image ? `<img src="../${insight.image}" alt="${insight.title}" onerror="this.style.display='none'">` : ''}
+            ${imageSrc ? `<div class="insight-thumbnail"><img src="${imageSrc}" alt="${insight.title}" onerror="this.style.display='none'"></div>` : ''}
             <div class="insight-content">
-                <h3 class="insight-title">${escapeHtml(insight.title)}</h3>
-                <p class="insight-text">${escapeHtml(insight.content)}</p>
-                <div class="insight-tags">
-                    ${insight.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
-                </div>
-                <div class="insight-meta">
-                    <span>${formatDate(insight.timestamp)}</span>
-                    <span class="category-badge">${insight.category || 'tech'}</span>
+                <div class="json-viewer">
+                    <pre class="json-code">${highlightJSON(jsonString)}</pre>
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function highlightJSON(json) {
+    // JSON 문자열을 HTML로 변환하면서 색상 적용
+    return json
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+            let cls = 'json-number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'json-key';
+                } else {
+                    cls = 'json-string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'json-boolean';
+            } else if (/null/.test(match)) {
+                cls = 'json-null';
+            }
+            return `<span class="${cls}">${match}</span>`;
+        });
 }
 
 function formatDate(timestamp) {
@@ -124,8 +181,12 @@ function openDetail(id) {
     const modal = document.getElementById('detailModal');
     const modalBody = document.getElementById('modalBody');
     
+    const imageSrc = insight.image 
+        ? (insight.image.startsWith('data:') ? insight.image : `../${insight.image}`)
+        : null;
+    
     modalBody.innerHTML = `
-        ${insight.image ? `<img src="../${insight.image}" alt="${insight.title}" class="modal-image" onerror="this.style.display='none'">` : ''}
+        ${imageSrc ? `<img src="${imageSrc}" alt="${insight.title}" class="modal-image" onerror="this.style.display='none'">` : ''}
         <h2 class="modal-title">${escapeHtml(insight.title)}</h2>
         <div class="modal-content-text">${escapeHtml(insight.content).replace(/\n/g, '<br>')}</div>
         <div class="modal-tags">
