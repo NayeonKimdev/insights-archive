@@ -4,6 +4,14 @@ const imagePreview = document.getElementById('imagePreview');
 let selectedImage = null;
 
 // 드래그앤드롭
+const fileSelectBtn = document.querySelector('.file-select-btn');
+if (fileSelectBtn) {
+    fileSelectBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        imageInput.click();
+    });
+}
+
 dropZone.addEventListener('click', () => imageInput.click());
 
 dropZone.addEventListener('dragover', (e) => {
