@@ -61,7 +61,11 @@ function handleImage(file) {
             selectedImage = null;
             imagePreview.innerHTML = '';
             imageInput.value = '';
+            updateJSONPreview();
         });
+        
+        // 이미지 업로드 후 미리보기 업데이트
+        updateJSONPreview();
     };
     reader.readAsDataURL(file);
 }
@@ -152,11 +156,70 @@ async function saveInsight(insight) {
     }
 }
 
-// 페이지 로드 시 localStorage의 대기 중인 인사이트 확인
-window.addEventListener('DOMContentLoaded', () => {
-    const pending = localStorage.getItem('pendingInsights');
-    if (pending) {
-        console.log('대기 중인 인사이트:', JSON.parse(pending));
-    }
+// 실시간 JSON 미리보기 업데이트
+function updateJSONPreview() {
+    const title = document.getElementById('title').value.trim();
+    const content = document.getElementById('content').value.trim();
+    const tagsInput = document.getElementById('tags').value.trim();
+    const category = document.getElementById('category').value;
+    
+    const tags = tagsInput 
+        ? tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0)
+        : [];
+    
+    const preview = {
+        id: generateId(),
+        timestamp: new Date().toISOString(),
+        title: title || "",
+        content: content || "",
+        tags: tags,
+        category: category,
+        image: selectedImage ? "📷 [Base64 encoded image]" : null
+    };
+    
+    const jsonString = JSON.stringify(preview, null, 2);
+    const highlighted = highlightJSON(jsonString);
+    document.getElementById('jsonPreview').innerHTML = highlighted;
+    
+    // ID와 timestamp도 업데이트
+    document.getElementById('id').value = preview.id;
+    document.getElementById('timestamp').value = preview.timestamp;
+}
+
+function highlightJSON(json) {
+    return json
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+            let cls = 'json-number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'json-key';
+                } else {
+                    cls = 'json-string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'json-boolean';
+            } else if (/null/.test(match)) {
+                cls = 'json-null';
+            }
+            return `<span class="${cls}">${match}</span>`;
+        });
+}
+
+// 모든 입력 필드에 이벤트 리스너 추가
+document.addEventListener('DOMContentLoaded', () => {
+    const inputs = ['title', 'content', 'tags', 'category'];
+    inputs.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('input', updateJSONPreview);
+            element.addEventListener('change', updateJSONPreview);
+        }
+    });
+    
+    // 초기 미리보기 업데이트
+    updateJSONPreview();
 });
 

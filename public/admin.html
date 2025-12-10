@@ -10,50 +10,129 @@
     <div class="container">
         <div class="header">
             <a href="index.html" class="back-btn">← 갤러리로</a>
-            <h1>✨ 새 인사이트 추가</h1>
+            <h1>📚 메타데이터 구조 이해하기</h1>
+            <p class="subtitle">각 필드가 어떻게 메타데이터로 변환되는지 실시간으로 확인하세요</p>
         </div>
         
-        <form id="insightForm">
-            <div class="form-group">
-                <label>제목</label>
-                <input type="text" id="title" required placeholder="핵심 한 줄 요약">
+        <div class="form-layout">
+            <div class="form-section">
+                <form id="insightForm">
+                    <div class="form-group">
+                        <label>
+                            <span class="field-name">id</span>
+                            <span class="field-type">(String, 자동 생성)</span>
+                        </label>
+                        <div class="field-explanation">
+                            각 데이터를 고유하게 식별하는 ID입니다. 서버에서 자동으로 생성됩니다.
+                        </div>
+                        <input type="text" id="id" readonly placeholder="자동 생성됨" class="readonly-field">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="field-name">title</span>
+                            <span class="field-type">(String, 필수)</span>
+                        </label>
+                        <div class="field-explanation">
+                            메인 제목입니다. 검색과 필터링에 사용되는 핵심 메타데이터입니다.
+                        </div>
+                        <input type="text" id="title" required placeholder="예: AWS Lambda 최적화 방법">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="field-name">content</span>
+                            <span class="field-type">(String, 필수)</span>
+                        </label>
+                        <div class="field-explanation">
+                            실제 콘텐츠 본문입니다. 텍스트 데이터로 저장되며, 검색 가능합니다.
+                        </div>
+                        <textarea id="content" rows="6" required 
+                            placeholder="상세 내용을 입력하세요..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="field-name">tags</span>
+                            <span class="field-type">(Array[String], 선택)</span>
+                        </label>
+                        <div class="field-explanation">
+                            태그 배열입니다. 쉼표로 구분하면 자동으로 배열로 변환됩니다. 분류와 검색에 사용됩니다.
+                        </div>
+                        <input type="text" id="tags" placeholder="aws, serverless, optimization">
+                        <small>입력 예: "aws, serverless" → ["aws", "serverless"]</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="field-name">category</span>
+                            <span class="field-type">(String, 선택)</span>
+                        </label>
+                        <div class="field-explanation">
+                            카테고리 분류입니다. 미리 정의된 값 중 하나를 선택합니다.
+                        </div>
+                        <select id="category">
+                            <option value="tech">tech</option>
+                            <option value="design">design</option>
+                            <option value="business">business</option>
+                            <option value="life">life</option>
+                            <option value="chemistry">chemistry</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="field-name">image</span>
+                            <span class="field-type">(String | null, 선택)</span>
+                        </label>
+                        <div class="field-explanation">
+                            이미지 데이터입니다. Base64로 인코딩되어 문자열로 저장됩니다. null이면 이미지가 없습니다.
+                        </div>
+                        <div id="dropZone" class="drop-zone">
+                            <p>📸 이미지를 드래그하거나 아래 버튼을 클릭</p>
+                            <button type="button" class="file-select-btn">파일 선택</button>
+                            <input type="file" id="imageInput" accept="image/*" hidden>
+                        </div>
+                        <div id="imagePreview"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <span class="field-name">timestamp</span>
+                            <span class="field-type">(ISO 8601 String, 자동 생성)</span>
+                        </label>
+                        <div class="field-explanation">
+                            생성 시간입니다. ISO 8601 형식(예: "2025-11-29T14:30:00.000Z")으로 자동 저장됩니다.
+                        </div>
+                        <input type="text" id="timestamp" readonly placeholder="자동 생성됨" class="readonly-field">
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">💾 메타데이터 저장</button>
+                </form>
             </div>
             
-            <div class="form-group">
-                <label>내용</label>
-                <textarea id="content" rows="8" required 
-                    placeholder="배운 점, 인사이트, 적용 아이디어 등 자유롭게 작성"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label>태그 (쉼표로 구분)</label>
-                <input type="text" id="tags" placeholder="aws, react, design">
-                <small>예: aws, serverless, optimization</small>
-            </div>
-            
-            <div class="form-group">
-                <label>카테고리</label>
-                <select id="category">
-                    <option value="tech">Tech</option>
-                    <option value="design">Design</option>
-                    <option value="business">Business</option>
-                    <option value="life">Life</option>
-                    <option value="chemistry">Chemistry</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>이미지 (선택)</label>
-                <div id="dropZone" class="drop-zone">
-                    <p>📸 이미지를 드래그하거나 아래 버튼을 클릭하여 선택</p>
-                    <button type="button" class="file-select-btn">파일 선택</button>
-                    <input type="file" id="imageInput" accept="image/*" hidden>
+            <div class="preview-section">
+                <div class="preview-header">
+                    <h3>📋 실시간 JSON 메타데이터 미리보기</h3>
+                    <p class="preview-subtitle">입력한 값이 어떻게 구조화되는지 확인하세요</p>
                 </div>
-                <div id="imagePreview"></div>
+                <div class="json-preview-container">
+                    <pre id="jsonPreview" class="json-preview">{
+  "id": "자동 생성됨",
+  "timestamp": "자동 생성됨",
+  "title": "",
+  "content": "",
+  "tags": [],
+  "category": "tech",
+  "image": null
+}</pre>
+                </div>
+                <div class="metadata-info">
+                    <h4>💡 메타데이터란?</h4>
+                    <p>메타데이터는 "데이터에 대한 데이터"입니다. 각 필드는 특정 타입(String, Array, null 등)을 가지며, 서버는 이 구조를 이해하고 저장/검색/필터링에 활용합니다.</p>
+                </div>
             </div>
-            
-            <button type="submit" class="submit-btn">저장</button>
-        </form>
+        </div>
     </div>
     
     <script src="../src/scripts/admin.js"></script>
